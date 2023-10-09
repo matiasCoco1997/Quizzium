@@ -1,0 +1,343 @@
+{{> header}}
+<!-- Quizzium Lobby -->
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<div class="statistics container">
+    <div class="redirect-to-lobby" style="margin-left: 8%; margin-bottom: 1rem">
+        <a href="/lobby/list">
+            <img src="../public/assets/arrow-right.png"/>
+            Ir al lobby
+        </a>
+    </div>
+    <div class="banner">
+        <img src="/public/assets/estadisticas.png">
+    </div>
+
+    <div class="filters">
+        <div class="container-date">
+            <input type="date" id="dateFrom" class="input-date">
+            <input type="date" id="dateTo" class="input-date">
+        </div>
+
+        <button id="search" class="button button-small button-orange">Buscar</button>
+    </div>
+
+    <div class="charts">
+
+        <div class="statics">
+            <div class="static-number">
+                <span id="total_players" class="pdf-data"> - .</span>
+                <h3 style="font-weight: normal">Jugadores</h3>
+            </div>
+
+            <div class="static-number">
+                <span id="total_games" class="pdf-data"> - .</span>
+                <h3 style="font-weight: normal">Partidas Jugadas</h3>
+            </div>
+
+            <div class="static-number">
+                <span id="total_questions_active" class="pdf-data"> - .</span>
+                <h3 style="font-weight: normal">Preguntas Activas</h3>
+            </div>
+
+            <div class="static-number">
+                <span id="total_suggestions" class="pdf-data"> - .</span>
+                <h3 style="font-weight: normal">Preguntas Sugeridas</h3>
+            </div>
+
+            <div class="static-number">
+                <span id="total_viwed_suggestions" class="pdf-data"> - .</span>
+                <h3 style="font-weight: normal">Preguntas Sugeridas Vistas</h3>
+            </div>
+        </div>
+
+        <div class="container-list">
+            <div class="title-container">
+            <h3 style="font-weight: normal">Efectividad por usuario:</h3>
+            </div>
+
+            <ul id="percentage_effective_for_player" class="pdf-data list">
+                No haz ingresado fechas.
+            </ul>
+        </div>
+
+        <div class="container-list">
+            <div class="title-container">
+            <h3 style="font-weight: normal;">Cantidad de usuarios nuevos (por fechas ingresadas):</h3>
+            </div>
+
+            <ul id="total_new_users" class="pdf-data list">
+                No haz ingresado fechas.
+            </ul>
+        </div>
+
+        <div class="google">
+            <div id="by_country" class="pdf-data container-chart"></div>
+            <div id="by_age" class="pdf-data container-chart"></div>
+            <div id="by_gender" class="pdf-data container-chart"></div>
+        </div>
+
+
+        <button id="pdf" class="button button-small mt-2">PDF</button>
+    </div>
+
+</div>
+
+<script src='https://code.jquery.com/jquery-3.6.0.min.js'></script>
+
+<script type="text/javascript">
+
+    google.charts.load('current', {'packages': ['corechart']});
+
+    google.charts.setOnLoadCallback(() => createPieChart("/getPlayersByCountry", "by_country"));
+    google.charts.setOnLoadCallback(() => createPieChart("/getPlayersByAge", "by_age"));
+    google.charts.setOnLoadCallback(() => createPieChart("/getPlayersByGender", "by_gender"));
+    getStatistics("/getTotalPlayers", "total_players");
+    getStatistics("/getNumberOfGames", "total_games");
+    getStatistics("/getNumberOfActiveQuestions", "total_questions_active");
+    getStatistics("/getNumberOfViwedSuggestions", "total_viwed_suggestions");
+    getStatistics("/getNumberOfTotalSuggestions", "total_suggestions");
+    getPercentageOfEffectivenessPerUser("/getPercentageOfEffectivenessPerUser", "percentage_effective_for_player");
+    getNewUsers("/getNewUsers", "total_new_users");
+
+    var imageChart = [];
+
+    async function getStatistics(url, idTag, filters) {
+
+        var dateFrom = filters && filters.dateFrom;
+        var dateTo = filters && filters.dateTo;
+
+        await $.ajax({
+            url: "/admin" + url,
+            type: 'POST',
+            dataType: 'json',
+            async: true,
+            data: {dateFrom, dateTo},
+            success: function (dataFromPHP) {
+                console.log(dataFromPHP)
+                document.getElementById(idTag).textContent = dataFromPHP;
+            },
+            error: function (xhr, status, error) {
+                console.log("Error en obtener los datos por AJAX: " + error);
+            }
+        });
+    }
+
+    async function getPercentageOfEffectivenessPerUser(url, ulId, filters) {
+
+        var dateFrom = filters && filters.dateFrom;
+        var dateTo = filters && filters.dateTo;
+
+        await $.ajax({
+            url: "/admin" + url,
+            type: 'POST',
+            dataType: 'json',
+            async: true,
+            data: {dateFrom, dateTo},
+            success: function (dataFromPHP) {
+                console.log(dataFromPHP)
+                var ul = document.getElementById(ulId);
+                ul.style.listStyle = "none";
+                ul.textContent = "";
+
+                dataFromPHP.forEach(dato => {
+
+                    var li = document.createElement('li');
+
+                    var id_cuenta = dato.id_cuenta;
+                    var usuario = dato.usuario;
+                    var dificultad = dato.dificultad;
+
+                    li.textContent = `id_cuenta: ${id_cuenta} - Usuario: ${usuario} - dificultad: ${dificultad}`;
+                    li.style.textDecoration = "none";
+                    ul.appendChild(li);
+
+                });
+
+            },
+            error: function (xhr, status, error) {
+                console.log("Error en obtener los datos por AJAX: " + error);
+            }
+        });
+
+    }
+
+    async function getNewUsers(url, ulId, filters) {
+
+        var dateFrom = filters && filters.dateFrom;
+        var dateTo = filters && filters.dateTo;
+
+        await $.ajax({
+            url: "/admin" + url,
+            type: 'POST',
+            dataType: 'json',
+            async: true,
+            data: {dateFrom, dateTo},
+            success: function (dataFromPHP) {
+
+                const ul = document.getElementById(ulId);
+                ul.style.listStyle = "none";
+                ul.textContent = "";
+
+                dataFromPHP.forEach(dato => {
+
+                    const li = document.createElement('li');
+
+                    const id_cuenta = dato.id_cuenta;
+                    const usuario = dato.usuario;
+                    var fecha_creacion = dato.fecha_creacion;
+
+                    let fecha = new Date(fecha_creacion);
+
+                    let anio = fecha.getFullYear();
+                    let mes = fecha.getMonth() + 1;
+                    let dia = fecha.getDate();
+
+                    fecha_creacion = anio + "-" + mes + "-" + dia;
+
+                    li.textContent = `id_cuenta: ${id_cuenta} - Usuario: ${usuario} - fecha de creacion: ${fecha_creacion}`;
+                    li.style.textDecoration = "none";
+                    ul.appendChild(li);
+
+                });
+
+            },
+            error: function (xhr, status, error) {
+                console.log("Error en obtener los datos por AJAX: " + error);
+            }
+        });
+
+    }
+
+    async function createPieChart(url, div, filters) {
+
+        var data = new google.visualization.DataTable();
+
+        var rows = [];
+        var columns = [];
+        var title = "";
+
+        var dateFrom = filters && filters.dateFrom;
+        var dateTo = filters && filters.dateTo;
+
+        await $.ajax({
+            url: "/admin" + url,
+            type: 'POST',
+            dataType: 'json',
+            async: true,
+            data: {dateFrom, dateTo},
+            success: function (dataFromPHP) {
+                rows = dataFromPHP.datos;
+                columns = dataFromPHP.columnas;
+                title = dataFromPHP.title;
+            },
+            error: function (xhr, status, error) {
+                console.log("Error en obtener los datos por AJAX: " + error);
+            }
+        });
+
+        var options = {
+            'title': title,
+            'width': 500,
+            'height': 400,
+            colors: ['#FF9400', '#FFA830', '#FFB652'],
+            animation: {
+                duration: 1000,
+                easing: 'out',
+            },
+        };
+
+        createColumns(columns, data);
+        createRows(rows, data);
+
+        var chart = new google.visualization.PieChart(document.getElementById(div));
+        chart.draw(data, options);
+        imageChart[`${div}`] = chart.getImageURI();
+    }
+
+    function createColumns(columns, data) {
+        for (var i = 0; i < columns.length; i++) {
+            var tipo = columns[i][0];
+            var nombre = columns[i][1];
+
+            data.addColumn(tipo, nombre);
+        }
+    }
+
+    function createRows(rows, data) {
+        data.addRows(rows);
+    }
+
+    window.addEventListener('DOMContentLoaded', function () {
+        var searchButton = document.querySelector('#search')
+        var pdfButton = document.getElementById('pdf');
+
+        searchButton.addEventListener('click', function () {
+            var inputDateFrom = document.querySelector('#dateFrom');
+            var inputDateTo = document.querySelector('#dateTo');
+            var filters = {
+                "dateFrom": inputDateFrom.value,
+                "dateTo": inputDateTo.value
+            }
+            google.charts.setOnLoadCallback(() => createPieChart("/getPlayersByCountry", "by_country", filters));
+            google.charts.setOnLoadCallback(() => createPieChart("/getPlayersByAge", "by_age", filters));
+            google.charts.setOnLoadCallback(() => createPieChart("/getPlayersByGender", "by_gender", filters));
+
+            getStatistics("/getTotalPlayers", "total_players", filters);
+
+            getStatistics("/getNumberOfGames", "total_games", filters);
+
+            getStatistics("/getNumberOfActiveQuestions", "total_questions_active", filters);
+
+            getStatistics("/getNumberOfViwedSuggestions", "total_viwed_suggestions", filters);
+
+            getStatistics("/getNumberOfTotalSuggestions", "total_suggestions", filters);
+
+            getPercentageOfEffectivenessPerUser("/getPercentageOfEffectivenessPerUser", "percentage_effective_for_player", filters);
+
+            getNewUsers("/getNewUsers", "total_new_users", filters);
+
+        }, {passive: true});
+
+        pdfButton.addEventListener('click', function (event) {
+            event.preventDefault();
+
+            var pdfDataElements = document.getElementsByClassName('pdf-data');
+            var data = {};
+
+            for (var i = 0; i < pdfDataElements.length; i++) {
+                var element = pdfDataElements[i];
+                var id = element.getAttribute('id');
+                var value = element.innerText;
+                data[id] = value;
+            }
+            data['dateFrom'] = document.getElementById('dateFrom').value;
+            data['dateTo'] = document.getElementById('dateTo').value;
+
+            data['by_country'] = imageChart['by_country'];
+            data['by_age'] = imageChart['by_age'];
+            data['by_gender'] = imageChart['by_gender'];
+
+            var jsonData = JSON.stringify(data);
+
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/admin/getPdf';
+            form.target = '_blank';
+
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'data';
+            input.value = jsonData;
+
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+        });
+    }, {passive: true});
+
+</script>
+
+<!-- End Page Content -->
+</div>
+{{> footer}}

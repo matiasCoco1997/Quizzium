@@ -1,0 +1,240 @@
+{{> header}}
+
+<!-- Quizzium Lobby -->
+<div class="container profile">
+    <div class="redirect">
+        <a href="/lobby/list">Ir al lobby</a>
+    </div>
+
+    <div class="container-profile">
+
+
+        {{#public}}
+            <div class="header">
+
+                <div class="description">
+                    <img src="../public/profile-pictures/{{foto_perfil}}"/>
+                    <h1>{{usuario}}</h1>
+                </div>
+
+            </div>
+
+            <div class="first-container">
+                <div class="map">
+                    <div id="map"></div>
+                </div>
+
+                <script>
+                    var map = L.map('map').setView([{{lat}},{{lng}}], 16);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+                        maxZoom: 18,
+                    }).addTo(map);
+
+
+                    var marker = L.marker([{{lat}}, {{lng}}]).addTo(map);
+                </script>
+
+                <div class="sidebar">
+                    <div class="statistic-games">
+                        <div class="container-statistic">
+                            <span class="title">Partidas realizadas</span>
+                            <span class="number">{{cantidadDePartidas}}</span>
+                        </div>
+                        <div class="container-statistic">
+                            <span class="title">Mejor puntuación</span>
+                            <span class="number">{{puntajeMaximo}}</span>
+                        </div>
+                        <div class="container-statistic">
+                            <span class="title">Posición en ranking</span>
+                            <span class="number">{{posicionDelRanking}}</span>
+                        </div>
+                    </div>
+                    <div class="qr">
+                        <h2>¡Jugá con {{nombre}}!</h2>
+                        <img src="../public/qr.php?id={{id_cuenta}}" />
+                    </div>
+                </div>
+            </div>
+        {{/public}}
+
+        {{#owner}}
+            <div class="header f-wrap">
+
+                <div class="description">
+                    <img src="../public/profile-pictures/{{foto_perfil}}"/>
+
+                    <h1 id="nombreDeUsuario">{{usuario}}</h1>
+                </div>
+
+            {{#photoError}}
+                <p id="photoError" class="redFont">Ingrese un archivo "JPEG" o "PNG"</p>
+            {{/photoError}}
+
+                <form class="setProfilePhoto" enctype="multipart/form-data" action="/profile/changePhoto" method="POST">
+                    <button type="submit" id="changePhotoBtn">Cambiar foto de perfil</button>
+                    <input type="file" id="photoProfileInput" name="photoProfileInput">
+                </form>
+
+            </div>
+
+            <div class="first-container">
+
+                <div class="map">
+                    <div id="map"></div>
+                </div>
+
+                <script>
+                    var map = L.map('map').setView([{{lat}},{{lng}}], 16);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+                        maxZoom: 18,
+                    }).addTo(map);
+
+
+                    var marker = L.marker([{{lat}}, {{lng}}]).addTo(map);
+                </script>
+
+                <div class="sidebar">
+
+                    <div class="statistic-games">
+
+                        <div class="container-statistic">
+                            <span class="title">Partidas realizadas</span>
+                            <span class="number">{{cantidadDePartidas}}</span>
+                        </div>
+
+                        <div class="container-statistic">
+                            <span class="title">Mejor puntuación</span>
+                            <span class="number">{{puntajeMaximo}}</span>
+                        </div>
+
+                        <div class="container-statistic">
+                            <span class="title">Posición en ranking</span>
+                            <span class="number">{{posicionDelRanking}}</span>
+                        </div>
+
+                    </div>
+
+                    <div class="qr">
+
+                        <h2>Mi QR</h2>
+                        <img src="../public/qr.php?id={{id_cuenta}}" />
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-data">
+                <div class="header-data">
+                    <h3>Datos de mi perfil</h3>
+                </div>
+
+                <div class="container-info">
+
+                    <div class="data">
+
+                        <div class="info">
+                            <span class="title">Nombre de usuario:</span>
+                            <input id="campoUnoFormularioPerfil" class="info-data" name="usuario" value="{{usuario}}">
+                        </div>
+
+                        <div class="info">
+                            <span class="title">Contraseña:</span>
+                            <input id="campoDosFormularioPerfil" class="info-data" name="contrasenia"
+                                   type="password">
+                        </div>
+
+                        <div class="info">
+                            <span class="title">Nombre:</span>
+                            <input id="campoTresFormularioPerfil" class="info-data" name="nombre" value="{{nombre}}">
+                        </div>
+
+                        <div class="info">
+                            <span class="title">Apellido:</span>
+                            <input id="campoCuatroFormularioPerfil" class="info-data" name="apellido"
+                                   value="{{apellido}}">
+                        </div>
+
+                        <div class="info">
+                            <span class="title">Fecha de nacimiento:</span>
+                            <input id="campoCincoFormularioPerfil" class="info-data" name="fecha_nacimiento"
+                                   value="{{fecha_nacimiento}}">
+                        </div>
+
+                        {{#masculino}}
+                            <div class="info">
+                                <span class="title">Género:</span>
+                                <select id="campoSeisFormularioPerfil" class="info-data" name="tipo">
+                                    <option value="1" selected>{{tipo}}</option>
+                                    <option value="2">Femenino</option>
+                                    <option value="3">Prefiero no decirlo</option>
+                                </select>
+                            </div>
+                        {{/masculino}}
+
+                        {{#femenino}}
+                            <div class="info">
+                                <span class="title">Género:</span>
+                                <select id="campoSeisFormularioPerfil" class="info-data" name="tipo">
+                                    <option value="1">Masculino</option>
+                                    <option value="2" selected>{{tipo}}</option>
+                                    <option value="3">Prefiero no decirlo</option>
+                                </select>
+                            </div>
+                        {{/femenino}}
+
+                        {{#otro}}
+                            <div class="info">
+                                <span class="title">Género:</span>
+                                <select id="campoSeisFormularioPerfil" class="info-data" name="tipo">
+                                    <option value="1">Masculino</option>
+                                    <option value="2">Femenino</option>
+                                    <option value="3" selected>{{tipo}}</option>
+                                </select>
+
+                            </div>
+                        {{/otro}}
+
+                        <div class="info">
+                            <span class="title">País:</span>
+                            <input id="campoSieteFormularioPerfil" class="info-data" name="pais" value="{{pais}}">
+                        </div>
+
+                        <div class="info">
+                            <span class="title">Ciudad:</span>
+                            <input id="campoOchoFormularioPerfil" class="info-data" name="ciudad" value="{{ciudad}}">
+                        </div>
+
+                        <div class="info">
+                            <span class="title">Mail:</span>
+                            <p id="mailExistente" style="display: none">Mail existente, ingrese otro mail</p>
+                            <input id="campoNueveFormularioPerfil" class="info-data" name="mail" value="{{mail}}">
+                        </div>
+
+                        <p id="operacionExitosa" style="display: none">Cambios realizados correctamente</p>
+
+                        <button id="editProfile" class="button-secondary button-small">Actualizar
+                            perfil
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        {{/owner}}
+
+    </div>
+</div>
+
+<!-- End Page Content -->
+</div>
+<script src='https://code.jquery.com/jquery-3.6.0.min.js'></script>
+<script src='../public/scripts/profile.js'></script>
+
+
+
+{{> footer}}

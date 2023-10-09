@@ -1,0 +1,157 @@
+{{> header}}
+
+
+<!-- Quizzium Lobby -->
+<div class="container pb-2">
+    <img src="../public/assets/characters.png" class="characters-small">
+
+    <form action="/register/validate" method="post" enctype="multipart/form-data" class="login-area">
+
+        {{#empty_fields_error}}
+            <div class="alert alert-error">
+                <span class="title">Hay campos que faltan completar.</span>
+                <span class="description">Asegurate de haber completado todos los campos.</span>
+            </div>
+        {{/empty_fields_error}}
+
+        {{#password_error}}
+            <div class="alert alert-error">
+                <span class="title">Las contraseñas ingresadas son distintas.</span>
+                <span class="description">Asegurate que las contraseñas que ingreses sean idénticas.</span>
+            </div>
+        {{/password_error}}
+
+        {{#mail_error}}
+            <div class="alert alert-error">
+                <span class="title">El correo electrónico ya esta en uso.</span>
+                <span class="description">Te sugerimos que inicies sesión con tu mail.</span>
+            </div>
+        {{/mail_error}}
+
+        {{#photo_error}}
+            <div class="alert alert-error">
+                <span class="title">Error en el formato de la imagen.</span>
+                <span class="description">La imagen ingresada debe ser de formato .png o .jpg</span>
+            </div>
+        {{/photo_error}}
+
+        {{#born_date_error}}
+            <div class="alert alert-error">
+                <span class="title">Error en la fecha de nacimiento ingresada.</span>
+                <span class="description">La fecha ingresada no puede ser superior la fecha actual.</span>
+            </div>
+        {{/born_date_error}}
+
+        <div class="field">
+            <label>Nombre</label>
+            <input name="register[name]" type="text" placeholder="Ingrese su nombre" required/>
+        </div>
+
+        <div class="field">
+            <label>Apellido</label>
+            <input name="register[surname]" placeholder="Ingrese su apellido" type="text" required/>
+        </div>
+
+        <div class="field">
+            <label>Fecha de nacimiento</label>
+            <input name="register[born_date]" type="date" required/>
+        </div>
+
+        <div class="field">
+            <label>Foto de Perfil</label>
+            <input name="photo" type="file" required/>
+        </div>
+
+        <div class="field">
+            <label>Sexo</label>
+            <select id="gender" name="register[gender]" required>
+                <option value="1" selected>Masculino</option>
+                <option value="2">Femenino</option>
+                <option value="3">Prefiero no decirlo</option>
+            </select>
+        </div>
+
+        <div id="map" style="width: 600px; height: 400px;"></div>
+
+        <input id="latInput" name="register[lat]" type="text" style="position: absolute; left: -9999px;" />
+        <input id="lngInput" name="register[lng]" type="text" style="position: absolute; left: -9999px;" />
+
+        <div class="field">
+            <label>Ciudad</label>
+            <input name="register[city]" type="text" placeholder="Ciudad" required/>
+        </div>
+
+        <div class="field">
+            <label>Pais</label>
+            <input name="register[country]" type="text" placeholder="Pais" required/>
+        </div>
+
+        <div class="field">
+            <label>Nombre de usuario</label>
+            <input name="register[username]" type="text" placeholder="Ingrese su usuario" required/>
+        </div>
+
+        <div class="field">
+            <label>Mail</label>
+            <input name="register[mail]" type="email" placeholder="Ingrese su mail" />
+        </div>
+
+        <div class="field">
+            <label>Contraseña</label>
+            <input name="register[password]" type="password" placeholder="Ingrese su contraseña" required/>
+        </div>
+
+        <div class="field">
+            <label>Repetir Contraseña</label>
+            <input name="register[verificated_password]" type="password" placeholder="Repita su contraseña" required/>
+        </div>
+
+        <button type="submit" class="button button-small register-button" name="send">
+            Registrarme
+        </button>
+    </form>
+    <div class="container-link">
+        <a href="/login/list">
+            Tengo una cuenta
+            <img src="../public/assets/arrow-right.png"/>
+        </a>
+    </div>
+
+</div>
+
+<!-- End Page Content -->
+</div>
+{{> footer}}
+
+
+<script>
+
+    var map = L.map('map').setView([-34.67019736429832, -58.56253720848442], 16);
+    var marker = null;
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+        maxZoom: 18,
+    }).addTo(map);
+
+    map.on('click', function (e) {
+        var lat = e.latlng.lat;
+        var lng = e.latlng.lng;
+
+        if (marker) {
+            map.removeLayer(marker);
+        }
+
+        var latInput = document.getElementById('latInput');
+        var lngInput = document.getElementById('lngInput')
+
+        latInput.value = lat;
+        lngInput.value = lng;
+
+        marker = L.marker([lat, lng]).addTo(map);
+    });
+
+</script>
+<!-- End Page Content -->
+</div>
+{{> footer}}
